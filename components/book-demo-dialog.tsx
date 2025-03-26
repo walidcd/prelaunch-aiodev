@@ -1,15 +1,15 @@
-"use client";
+"use client"
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
-import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
-import SuccessModal from "./success-modal";
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
+import { CalendarIcon } from "lucide-react"
+import { format } from "date-fns"
+import { useToast } from "@/hooks/use-toast"
+import { useState } from "react"
+import SuccessModal from "./success-modal"
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -17,23 +17,12 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { bookDemo } from "@/app/actions";
+} from "@/components/ui/dialog"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Calendar } from "@/components/ui/calendar"
+import { bookDemo } from "@/app/actions"
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -44,18 +33,18 @@ const formSchema = z.object({
   }),
   company: z.string().optional(),
   date: z.date().optional(),
-});
+})
 
 export default function BookDemoDialog({
   open,
   onOpenChange,
 }: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  open: boolean
+  onOpenChange: (open: boolean) => void
 }) {
-  const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const { toast } = useToast()
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -64,25 +53,24 @@ export default function BookDemoDialog({
       email: "",
       company: "",
     },
-  });
+  })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsSubmitting(true);
+    setIsSubmitting(true)
 
     try {
-      await bookDemo(values);
-      form.reset();
-      onOpenChange(false);
-      setShowSuccessModal(true);
+      await bookDemo(values)
+      form.reset()
+      onOpenChange(false)
+      setShowSuccessModal(true)
     } catch (error) {
       toast({
         title: "Something went wrong.",
-        description:
-          "Your demo request couldn't be submitted. Please try again.",
+        description: "Your demo request couldn't be submitted. Please try again.",
         variant: "destructive",
-      });
+      })
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
   }
 
@@ -92,9 +80,7 @@ export default function BookDemoDialog({
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Book a Demo</DialogTitle>
-            <DialogDescription>
-              Fill out the form below to schedule a personalized demo of AIODEV.
-            </DialogDescription>
+            <DialogDescription>Fill out the form below to schedule a personalized demo of AIODEV.</DialogDescription>
           </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -105,7 +91,7 @@ export default function BookDemoDialog({
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="Name" {...field} />
+                      <Input placeholder="John Doe" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -118,7 +104,7 @@ export default function BookDemoDialog({
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="email" {...field} />
+                      <Input placeholder="john@example.com" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -131,7 +117,7 @@ export default function BookDemoDialog({
                   <FormItem>
                     <FormLabel>Company (Optional)</FormLabel>
                     <FormControl>
-                      <Input placeholder="Company" {...field} />
+                      <Input placeholder="Acme Inc." {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -152,11 +138,7 @@ export default function BookDemoDialog({
                               !field.value ? "text-muted-foreground" : ""
                             }`}
                           >
-                            {field.value ? (
-                              format(field.value, "PPP")
-                            ) : (
-                              <span>Pick a date</span>
-                            )}
+                            {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
                         </FormControl>
@@ -176,11 +158,7 @@ export default function BookDemoDialog({
                 )}
               />
               <DialogFooter>
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={isSubmitting}
-                >
+                <Button type="submit" className="w-full" disabled={isSubmitting}>
                   {isSubmitting ? "Submitting..." : "Request Demo"}
                 </Button>
               </DialogFooter>
@@ -197,5 +175,6 @@ export default function BookDemoDialog({
         type="demo"
       />
     </>
-  );
+  )
 }
+

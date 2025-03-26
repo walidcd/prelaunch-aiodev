@@ -1,13 +1,14 @@
-"use client";
+"use client"
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
-import SuccessModal from "./success-modal";
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
+import { useToast } from "@/hooks/use-toast"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import SuccessModal from "./success-modal"
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -15,37 +16,29 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { joinWaitlist } from "@/app/actions";
-import { useRouter } from "next/navigation";
+} from "@/components/ui/dialog"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { joinWaitlist } from "@/app/actions"
 
 const formSchema = z.object({
   email: z.string().email({
     message: "Please enter a valid email address.",
   }),
   name: z.string().optional(),
-});
+})
 
 export default function JoinWaitlistDialog({
   open,
   onOpenChange,
 }: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  open: boolean
+  onOpenChange: (open: boolean) => void
 }) {
-  const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const router = useRouter();
+  const { toast } = useToast()
+  const router = useRouter()
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -53,36 +46,33 @@ export default function JoinWaitlistDialog({
       email: "",
       name: "",
     },
-  });
+  })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsSubmitting(true);
+    setIsSubmitting(true)
 
     try {
-      const result = await joinWaitlist(values);
+      const result = await joinWaitlist(values)
       if (result.success) {
-        form.reset();
-        onOpenChange(false);
-        setShowSuccessModal(true);
+        form.reset()
+        onOpenChange(false)
+        setShowSuccessModal(true)
 
-        // Refresh the page to update the waitlist count
-        // We use setTimeout to ensure the success modal is shown first
         setTimeout(() => {
-          router.refresh();
-        }, 500);
+          router.refresh()
+        }, 500)
       } else {
-        throw new Error("Server returned unsuccessful response");
+        throw new Error("Server returned unsuccessful response")
       }
     } catch (error) {
-      console.error("Form submission error:", error);
+      console.error("Form submission error:", error)
       toast({
         title: "Something went wrong.",
-        description:
-          "Your request couldn't be processed. Please try again later.",
+        description: "Your request couldn't be processed. Please try again later.",
         variant: "destructive",
-      });
+      })
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
   }
 
@@ -92,9 +82,7 @@ export default function JoinWaitlistDialog({
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Join the Waitlist</DialogTitle>
-            <DialogDescription>
-              Enter your email to be notified when AIODEV launches.
-            </DialogDescription>
+            <DialogDescription>Enter your email to be notified when AIODEV launches.</DialogDescription>
           </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -105,7 +93,7 @@ export default function JoinWaitlistDialog({
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="email" {...field} />
+                      <Input placeholder="john@example.com" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -118,18 +106,14 @@ export default function JoinWaitlistDialog({
                   <FormItem>
                     <FormLabel>Name (Optional)</FormLabel>
                     <FormControl>
-                      <Input placeholder="Name" {...field} />
+                      <Input placeholder="John Doe" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <DialogFooter>
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={isSubmitting}
-                >
+                <Button type="submit" className="w-full" disabled={isSubmitting}>
                   {isSubmitting ? "Submitting..." : "Join Waitlist"}
                 </Button>
               </DialogFooter>
@@ -141,10 +125,9 @@ export default function JoinWaitlistDialog({
       <SuccessModal
         open={showSuccessModal}
         onOpenChange={(open) => {
-          setShowSuccessModal(open);
-          // Refresh the page when the success modal is closed
+          setShowSuccessModal(open)
           if (!open) {
-            router.refresh();
+            router.refresh()
           }
         }}
         title="You're on the Waitlist!"
@@ -152,5 +135,6 @@ export default function JoinWaitlistDialog({
         type="waitlist"
       />
     </>
-  );
+  )
 }
+

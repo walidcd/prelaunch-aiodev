@@ -5,7 +5,6 @@ interface WaitlistEmailProps {
   email: string
 }
 
-// Email to user confirming their waitlist signup
 export const WaitlistUserEmail: React.FC<WaitlistEmailProps> = ({ name, email }) => (
   <div>
     <h1>Welcome to the AIODEV Waitlist!</h1>
@@ -24,16 +23,11 @@ export const WaitlistUserEmail: React.FC<WaitlistEmailProps> = ({ name, email })
   </div>
 )
 
-// Email to admin notifying of a new waitlist signup
 interface WaitlistAdminEmailProps extends WaitlistEmailProps {
   waitlistCount: number
 }
 
-export const WaitlistAdminEmail: React.FC<WaitlistAdminEmailProps> = ({
-  name,
-  email,
-  waitlistCount = 0, // Provide default value
-}) => (
+export const WaitlistAdminEmail: React.FC<WaitlistAdminEmailProps> = ({ name, email, waitlistCount = 0 }) => (
   <div>
     <h1>New Waitlist Signup</h1>
     <p>A new user has joined the waitlist:</p>

@@ -5,6 +5,9 @@ import { ThemeProvider } from "@/components/theme-provider"
 export const metadata = {
   title: "AIODEV - Master Coding Challenges",
   description: "A comprehensive problem-solving platform for frontend and backend challenges",
+  icons: {
+    icon: "/favicon.ico",
+  },
     generator: 'v0.dev'
 }
 

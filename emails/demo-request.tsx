@@ -8,7 +8,6 @@ interface DemoRequestEmailProps {
   date?: Date
 }
 
-// Email to user confirming their demo request
 export const DemoRequestUserEmail: React.FC<DemoRequestEmailProps> = ({ name, company, date }) => (
   <div>
     <h1>Your Demo Request is Confirmed</h1>
@@ -33,7 +32,6 @@ export const DemoRequestUserEmail: React.FC<DemoRequestEmailProps> = ({ name, co
   </div>
 )
 
-// Email to admin notifying of a new demo request
 export const DemoRequestAdminEmail: React.FC<DemoRequestEmailProps> = ({ name, email, company, date }) => (
   <div>
     <h1>New Demo Request</h1>

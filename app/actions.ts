@@ -26,10 +26,9 @@ const waitlistSchema = z.object({
   name: z.string().optional(),
 });
 
-// Load environment variables
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
+
 export async function bookDemo(formData: z.infer<typeof bookDemoSchema>) {
-  // Validate the form data
   const validatedFields = bookDemoSchema.safeParse(formData);
 
   if (!validatedFields.success) {
@@ -39,11 +38,9 @@ export async function bookDemo(formData: z.infer<typeof bookDemoSchema>) {
   const { name, email, company, date } = validatedFields.data;
 
   try {
-    // Initialize clients
     const supabase = createServerSupabaseClient();
     const resend = createResendClient();
 
-    // Store in Supabase
     const { error: dbError } = await supabase.from("demo_requests").insert({
       name,
       email,
@@ -71,24 +68,23 @@ export async function bookDemo(formData: z.infer<typeof bookDemoSchema>) {
       console.error("User email error:", userEmailError);
     }
 
-    // Send notification email to admin
-    const adminHtml = await renderAsync(
-      DemoRequestAdminEmail({ name, email, company, date })
-    );
+    if (ADMIN_EMAIL) {
+      const adminHtml = await renderAsync(
+        DemoRequestAdminEmail({ name, email, company, date })
+      );
 
-    const { error: adminEmailError } = await resend.emails.send({
-      from: "AIODEV <onboarding@resend.dev>",
-      to: ADMIN_EMAIL,
-      subject: "New AIODEV Demo Request",
-      html: adminHtml,
-    });
+      const { error: adminEmailError } = await resend.emails.send({
+        from: "AIODEV <onboarding@resend.dev>",
+        to: ADMIN_EMAIL,
+        subject: "New AIODEV Demo Request",
+        html: adminHtml,
+      });
 
-    if (adminEmailError) {
-      console.error("Admin email error:", adminEmailError);
+      if (adminEmailError) {
+        console.error("Admin email error:", adminEmailError);
+      }
     }
 
-    // Revalidate the home page to update the waitlist count
-    revalidatePath("/");
     return { success: true };
   } catch (error) {
     console.error("Error booking demo:", error);
@@ -96,11 +92,7 @@ export async function bookDemo(formData: z.infer<typeof bookDemoSchema>) {
   }
 }
 
-/**
- * Server action to handle joining the waitlist
- */
 export async function joinWaitlist(formData: z.infer<typeof waitlistSchema>) {
-  // Validate the form data
   const validatedFields = waitlistSchema.safeParse(formData);
 
   if (!validatedFields.success) {
@@ -125,7 +117,6 @@ export async function joinWaitlist(formData: z.infer<typeof waitlistSchema>) {
       }
     }
 
-    // Get waitlist count
     let waitlistCount = 0;
     try {
       const { count, error: countError } = await supabase
@@ -142,7 +133,6 @@ export async function joinWaitlist(formData: z.infer<typeof waitlistSchema>) {
     try {
       const resend = createResendClient();
 
-      // Send confirmation email to user
       const userHtml = await renderAsync(WaitlistUserEmail({ name, email }));
 
       await resend.emails
@@ -156,28 +146,31 @@ export async function joinWaitlist(formData: z.infer<typeof waitlistSchema>) {
           console.error("User email error:", err);
         });
 
-      const adminHtml = await renderAsync(
-        WaitlistAdminEmail({
-          name,
-          email,
-          waitlistCount,
-        })
-      );
+      if (ADMIN_EMAIL) {
+        const adminHtml = await renderAsync(
+          WaitlistAdminEmail({
+            name,
+            email,
+            waitlistCount,
+          })
+        );
 
-      await resend.emails
-        .send({
-          from: "AIODEV <onboarding@resend.dev>",
-          to: ADMIN_EMAIL,
-          subject: "New AIODEV Waitlist Signup",
-          html: adminHtml,
-        })
-        .catch((err) => {
-          console.error("Admin email error:", err);
-        });
+        await resend.emails
+          .send({
+            from: "AIODEV <onboarding@resend.dev>",
+            to: ADMIN_EMAIL,
+            subject: "New AIODEV Waitlist Signup",
+            html: adminHtml,
+          })
+          .catch((err) => {
+            console.error("Admin email error:", err);
+          });
+      }
     } catch (emailErr) {
       console.error("Email sending error:", emailErr);
     }
 
+    revalidatePath("/");
     return { success: true };
   } catch (error) {
     console.error("Error joining waitlist:", error);

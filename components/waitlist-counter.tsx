@@ -1,9 +1,9 @@
-"use client";
+"use client"
 
-import { Users } from "lucide-react";
+import { Users } from "lucide-react"
 
 interface WaitlistCounterProps {
-  count: number;
+  count: number
 }
 
 export function WaitlistCounter({ count }: WaitlistCounterProps) {
@@ -12,10 +12,10 @@ export function WaitlistCounter({ count }: WaitlistCounterProps) {
       <div className="bg-gray-900/80 backdrop-blur-sm border border-purple-500/30 rounded-full px-4 py-2 flex items-center gap-2 text-sm text-gray-300">
         <Users className="h-4 w-4 text-purple-400" />
         <span>
-          <span className="font-bold text-white">{count}</span>{" "}
-          {count === 1 ? "person" : "people"} on the waitlist
+          <span className="font-bold text-white">{count}</span> {count === 1 ? "person" : "people"} on the waitlist
         </span>
       </div>
     </div>
-  );
+  )
 }
+
