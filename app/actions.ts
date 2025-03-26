@@ -12,7 +12,6 @@ import {
   WaitlistAdminEmail,
 } from "@/emails/waitlist-confirmation";
 import { renderAsync } from "@react-email/render";
-import { env } from "process";
 
 const bookDemoSchema = z.object({
   name: z.string().min(2),
@@ -26,8 +25,8 @@ const waitlistSchema = z.object({
   name: z.string().optional(),
 });
 
+// Load environment variables
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
-
 export async function bookDemo(formData: z.infer<typeof bookDemoSchema>) {
   // Validate the form data
   const validatedFields = bookDemoSchema.safeParse(formData);
@@ -61,7 +60,7 @@ export async function bookDemo(formData: z.infer<typeof bookDemoSchema>) {
     );
 
     const { error: userEmailError } = await resend.emails.send({
-      from: "AIODEV <onboarding@resend.dev>", // You'll need to verify your domain with Resend
+      from: "AIODEV <onboarding@resend.dev>",
       to: email,
       subject: "Your AIODEV Demo Request",
       html: userHtml,
@@ -77,8 +76,8 @@ export async function bookDemo(formData: z.infer<typeof bookDemoSchema>) {
     );
 
     const { error: adminEmailError } = await resend.emails.send({
-      from: "AIODEV <onboarding@resend.dev>", // You'll need to verify your domain with Resend
-      to: ADMIN_EMAIL, // Your personal email
+      from: "AIODEV <onboarding@resend.dev>",
+      to: ADMIN_EMAIL,
       subject: "New AIODEV Demo Request",
       html: adminHtml,
     });
@@ -180,5 +179,24 @@ export async function joinWaitlist(formData: z.infer<typeof waitlistSchema>) {
   } catch (error) {
     console.error("Error joining waitlist:", error);
     throw new Error("Failed to join waitlist");
+  }
+}
+
+export async function getWaitlistCount(): Promise<number> {
+  try {
+    const supabase = createServerSupabaseClient();
+    const { count, error } = await supabase
+      .from("waitlist_entries")
+      .select("*", { count: "exact", head: true });
+
+    if (error) {
+      console.error("Error fetching waitlist count:", error);
+      return 0;
+    }
+
+    return count || 0;
+  } catch (error) {
+    console.error("Error in getWaitlistCount:", error);
+    return 0;
   }
 }
