@@ -26,7 +26,7 @@ const waitlistSchema = z.object({
 });
 
 // Load environment variables
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
+const ADMIN_EMAIL = "walidboutahar19@gmail.com";
 export async function bookDemo(formData: z.infer<typeof bookDemoSchema>) {
   // Validate the form data
   const validatedFields = bookDemoSchema.safeParse(formData);

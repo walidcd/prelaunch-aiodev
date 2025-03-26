@@ -7,7 +7,10 @@ import BookDemoDialog from "./book-demo-dialog";
 import JoinWaitlistDialog from "./join-waitlist-dialog";
 import { WaitlistCounter } from "./waitlist-counter";
 
-export default function Hero() {
+interface HeroProps {
+  waitlistCount: number;
+}
+export default function Hero({ waitlistCount }: HeroProps) {
   const [bookDemoOpen, setBookDemoOpen] = useState(false);
   const [waitlistOpen, setWaitlistOpen] = useState(false);
 
@@ -67,9 +70,8 @@ export default function Hero() {
           </Button>
         </div>
       </div>
-      <Suspense fallback={null}>
-        <WaitlistCounter />
-      </Suspense>
+      <WaitlistCounter count={waitlistCount} />
+
       <BookDemoDialog open={bookDemoOpen} onOpenChange={setBookDemoOpen} />
       <JoinWaitlistDialog open={waitlistOpen} onOpenChange={setWaitlistOpen} />
     </div>
