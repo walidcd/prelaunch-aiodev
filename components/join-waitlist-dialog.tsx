@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { joinWaitlist } from "@/app/actions";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   email: z.string().email({
@@ -44,6 +45,7 @@ export default function JoinWaitlistDialog({
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -132,7 +134,13 @@ export default function JoinWaitlistDialog({
 
       <SuccessModal
         open={showSuccessModal}
-        onOpenChange={setShowSuccessModal}
+        onOpenChange={(open) => {
+          setShowSuccessModal(open);
+          // Refresh the page when the success modal is closed
+          if (!open) {
+            router.refresh();
+          }
+        }}
         title="You're on the Waitlist!"
         description="Thank you for joining the AIODEV waitlist."
         type="waitlist"

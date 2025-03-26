@@ -12,6 +12,7 @@ import {
   WaitlistAdminEmail,
 } from "@/emails/waitlist-confirmation";
 import { renderAsync } from "@react-email/render";
+import { revalidatePath } from "next/cache";
 
 const bookDemoSchema = z.object({
   name: z.string().min(2),
@@ -86,6 +87,8 @@ export async function bookDemo(formData: z.infer<typeof bookDemoSchema>) {
       console.error("Admin email error:", adminEmailError);
     }
 
+    // Revalidate the home page to update the waitlist count
+    revalidatePath("/");
     return { success: true };
   } catch (error) {
     console.error("Error booking demo:", error);
