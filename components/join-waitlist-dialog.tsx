@@ -64,6 +64,12 @@ export default function JoinWaitlistDialog({
         form.reset();
         onOpenChange(false);
         setShowSuccessModal(true);
+
+        // Refresh the page to update the waitlist count
+        // We use setTimeout to ensure the success modal is shown first
+        setTimeout(() => {
+          router.refresh();
+        }, 500);
       } else {
         throw new Error("Server returned unsuccessful response");
       }
