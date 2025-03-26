@@ -12,8 +12,8 @@ import {
   WaitlistAdminEmail,
 } from "@/emails/waitlist-confirmation";
 import { renderAsync } from "@react-email/render";
+import { env } from "process";
 
-// Schema for book demo form
 const bookDemoSchema = z.object({
   name: z.string().min(2),
   email: z.string().email(),
@@ -21,18 +21,13 @@ const bookDemoSchema = z.object({
   date: z.date().optional(),
 });
 
-// Schema for waitlist form
 const waitlistSchema = z.object({
   email: z.string().email(),
   name: z.string().optional(),
 });
 
-// Your personal email for receiving admin notifications
-const ADMIN_EMAIL = "walidboutahar19@gmail.com"; // REPLACE THIS with your personal email
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
 
-/**
- * Server action to handle booking a demo
- */
 export async function bookDemo(formData: z.infer<typeof bookDemoSchema>) {
   // Validate the form data
   const validatedFields = bookDemoSchema.safeParse(formData);
@@ -61,7 +56,6 @@ export async function bookDemo(formData: z.infer<typeof bookDemoSchema>) {
       throw new Error("Failed to store demo request");
     }
 
-    // Send confirmation email to user
     const userHtml = await renderAsync(
       DemoRequestUserEmail({ name, email, company, date })
     );
@@ -75,7 +69,6 @@ export async function bookDemo(formData: z.infer<typeof bookDemoSchema>) {
 
     if (userEmailError) {
       console.error("User email error:", userEmailError);
-      // Continue even if user email fails
     }
 
     // Send notification email to admin
@@ -92,10 +85,8 @@ export async function bookDemo(formData: z.infer<typeof bookDemoSchema>) {
 
     if (adminEmailError) {
       console.error("Admin email error:", adminEmailError);
-      // Continue even if admin email fails
     }
 
-    // Return success
     return { success: true };
   } catch (error) {
     console.error("Error booking demo:", error);
@@ -117,28 +108,22 @@ export async function joinWaitlist(formData: z.infer<typeof waitlistSchema>) {
   const { email, name } = validatedFields.data;
 
   try {
-    // Initialize clients
     const supabase = createServerSupabaseClient();
 
-    // Store in Supabase - handle potential errors more gracefully
     const { error: dbError } = await supabase.from("waitlist_entries").insert({
       email,
       name,
     });
 
-    // Handle duplicate email case
     if (dbError) {
       if (dbError.code === "23505") {
-        // Unique violation
         console.log("User already on waitlist:", email);
-        // Continue with the process even if the user is already on the waitlist
       } else {
         console.error("Database error:", dbError);
-        // Don't throw here, try to continue with email sending
       }
     }
 
-    // Get waitlist count - with better error handling
+    // Get waitlist count
     let waitlistCount = 0;
     try {
       const { count, error: countError } = await supabase
@@ -150,10 +135,8 @@ export async function joinWaitlist(formData: z.infer<typeof waitlistSchema>) {
       }
     } catch (countErr) {
       console.error("Error getting waitlist count:", countErr);
-      // Continue with the process even if count fails
     }
 
-    // Try to send emails, but don't fail the whole process if they fail
     try {
       const resend = createResendClient();
 
@@ -169,10 +152,8 @@ export async function joinWaitlist(formData: z.infer<typeof waitlistSchema>) {
         })
         .catch((err) => {
           console.error("User email error:", err);
-          // Continue even if user email fails
         });
 
-      // Send notification email to admin
       const adminHtml = await renderAsync(
         WaitlistAdminEmail({
           name,
@@ -190,14 +171,11 @@ export async function joinWaitlist(formData: z.infer<typeof waitlistSchema>) {
         })
         .catch((err) => {
           console.error("Admin email error:", err);
-          // Continue even if admin email fails
         });
     } catch (emailErr) {
       console.error("Email sending error:", emailErr);
-      // Don't fail the whole process if email sending fails
     }
 
-    // Return success regardless of email sending
     return { success: true };
   } catch (error) {
     console.error("Error joining waitlist:", error);
